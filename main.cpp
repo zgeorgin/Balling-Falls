@@ -3,6 +3,7 @@
 #include "physics.h"
 #include <random>
 #include <omp.h>
+#include <chrono>
 const int WIDTH = 1200, HEIGHT = 900;
 
 const int scale = 1;
@@ -44,8 +45,10 @@ int ball_test()
     SDL_Event windowEvent;
     int mouse_x = HEIGHT + 10;
     int mouse_y = WIDTH + 10;
+    double frame_time = 0;
     while ( true )
     {
+        std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         if ( SDL_PollEvent( &windowEvent ))
         {
             if (windowEvent.type == SDL_MOUSEMOTION) {
@@ -69,7 +72,7 @@ int ball_test()
             a.objects.push_back(ball);
             int32_t circle_x = int32_t(ball->position.x * scale);
             int32_t circle_y = int32_t(ball->position.y * scale);
-            circles.push_back(std::make_shared<Circle>(circle_x, circle_y, ball->radius, true, r, g, b,255));
+            circles.push_back(std::make_shared<Circle>(circle_x, circle_y, ball->radius, false, r, g, b,255));
         }
         
         for (int i = 1; i < a.objects.size(); i++)
@@ -86,8 +89,12 @@ int ball_test()
         a.objects[0]->prev_position.x = mouse_x;
         a.objects[0]->prev_position.y = mouse_y;
         a.objects[0]->position.y = mouse_y;
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        frame_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
     }
 
+    std::cout << "LAST FRAME TIME: " << frame_time << " ms\n";
+    std::cout << "LAST FPS: " << 1000.0 / frame_time << '\n';
     SDL_DestroyWindow ( window );
     SDL_Quit( );
 
@@ -96,6 +103,5 @@ int ball_test()
 
 int main( int argc, char *argv[] )
 {
-    
     return ball_test();
 }
