@@ -1,6 +1,6 @@
 #include <screen.h>
 
-Screen::Screen(int width, int height, char* windowName)
+Screen::Screen(int width, int height, const char windowName[])
 {
     window = SDL_CreateWindow( windowName, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_ALLOW_HIGHDPI );
     if ( NULL == window )
@@ -15,7 +15,6 @@ Screen::Screen(int width, int height, char* windowName)
 Screen::~Screen()
 {
     SDL_DestroyWindow ( window );
-    std::cout << "SCREEN DELETED\n";
 }
 
 void Screen::Draw()

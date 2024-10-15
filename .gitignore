@@ -1,2 +1,4 @@
 build/
 oldfiles/
+test/
+.vscode/

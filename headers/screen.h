@@ -12,7 +12,7 @@ public:
     std::vector<PrimitivePtr> objects;
     SDL_Window* window;
     SDL_Renderer* renderer;
-    Screen(int width, int height, char windowName[] = "Untitled");
+    Screen(int width, int height, const char windowName[] = "Untitled");
     Screen(SDL_Window* window, SDL_Renderer* renderer) : window(window), renderer(renderer) {}
     ~Screen();
     void AddObject(PrimitivePtr object) { objects.push_back(object);} 
