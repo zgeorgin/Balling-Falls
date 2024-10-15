@@ -15,6 +15,25 @@ struct Vector2
     Vector2() : x(0), y(0) {}
 };
 
+struct Vector3
+{
+    double x, y, z;
+    Vector3(double x, double y, double z) : x(x), y(y), z(z) {}
+    Vector3() : x(0), y(0), z(0) {}
+};
+
+double norm(Vector2 a);
+
+Vector2 operator+ (const Vector2& a, const Vector2& b) ;
+Vector2 operator* (const Vector2& a, double b);
+Vector2 operator* (double b, const Vector2& a);
+Vector2 operator/ (const Vector2& a, double b);
+Vector2 operator- (const Vector2& a, const Vector2& b) ;
+Vector2 operator+ (double a, const Vector2& b) ;
+Vector2 operator+ (const Vector2& b, double a) ;
+Vector2 operator- (double a, const Vector2& b) ;
+Vector2 operator- (const Vector2& b, double a) ;
+
 class Body
 {
 public:
@@ -30,30 +49,7 @@ class Ball : public Body
 public:
     int radius;
     double elasticity = 0.9;
-    Ball(long double mass, int radius, Vector2 position, Vector2 prev_position) : radius(radius), Body(mass, position, prev_position) {}
-};
-
-class Arena
-{
-public:
-    double delta = 1;
-    std::vector<std::shared_ptr<Body>> objects;
-    int animationTicks = 0;
-    virtual void ApplyForces() = 0;
-    Arena(std::vector<std::shared_ptr<Body>> vec) : objects(vec) {}
-    Arena() {}
-};
-
-class BallCollideArena : public Arena
-{
-public:
-    uint32_t uborder, dborder, rborder, lborder;
-    std::vector<std::shared_ptr<Ball>> objects;
-    virtual void ApplyForces() override;
-    void ApplyGravity();
-    void HandleCollisions();
-    void UpdatePositions(double dt);
-    BallCollideArena(std::vector<std::shared_ptr<Ball>> vec, uint32_t u, uint32_t d, uint32_t l, uint32_t r) : objects(vec), uborder(u), dborder(d), lborder(l), rborder(r) {}
+    Ball(long double mass = 1, int radius = 1, Vector2 position = {0, 0}, Vector2 prev_position = {0, 0}) : radius(radius), Body(mass, position, prev_position) {}
 };
 
 #endif

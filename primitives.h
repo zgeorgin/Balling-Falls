@@ -10,7 +10,7 @@ public:
     Primitive() : r(255), g(255), b(255), a(255) {}
     Primitive(Uint8 r, Uint8 g, Uint8 b, Uint8 a) : r(r), g(g), b(b), a(a) {}
     ~Primitive() {};
-    void Draw(SDL_Renderer* renderer) {};
+    virtual void Draw(SDL_Renderer* renderer) = 0;
     void ChangeColor(Uint8 r, Uint8 g, Uint8 b) {this->r = r; this->g = g; this->b = b;};
 };
 
@@ -23,7 +23,7 @@ public:
     Circle(int32_t x, int32_t y, int32_t radius, bool painted = false, Uint8 r = 255, Uint8 g = 255, Uint8 b = 255, Uint8 a = 255):
      centreX(x), centreY(y), radius(radius), painted(painted), Primitive(r, g, b, a) {};
     ~Circle() {}
-    void Draw(SDL_Renderer* renderer);
+    void Draw(SDL_Renderer* renderer) override;
 private:
     void DrawCircle(SDL_Renderer* renderer);
     void FillCircle(SDL_Renderer* renderer);
@@ -37,7 +37,7 @@ public:
     Rect(int32_t x1, int32_t y1, int32_t x2, int32_t y2, bool painted = false, Uint8 r = 255, Uint8 g = 255, Uint8 b = 255, Uint8 a = 255):
      x1(x1), x2(x2), y1(y1), y2(y2),  painted(painted), Primitive(r, g, b, a) {};
     ~Rect() {};
-    void Draw(SDL_Renderer* renderer);
+    void Draw(SDL_Renderer* renderer) override;
 private:
     void DrawRect(SDL_Renderer* renderer);
     void FillRect(SDL_Renderer* renderer);
@@ -51,7 +51,7 @@ public:
     Triangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, bool painted = false, Uint8 r = 255, Uint8 g = 255, Uint8 b = 255, Uint8 a = 255):
      x1(x1), x2(x2), y1(y1), y2(y2),  x3(x3), y3(y3), painted(painted), Primitive(r, g, b, a) {};
     ~Triangle() {};
-    void Draw(SDL_Renderer* renderer);
+    void Draw(SDL_Renderer* renderer)  override;
 private:
     void DrawTriangle(SDL_Renderer* renderer);
 };
