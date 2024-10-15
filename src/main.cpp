@@ -4,6 +4,7 @@
 #include <random>
 #include <omp.h>
 #include <chrono>
+#include <yaml-cpp/yaml.h>
 const int WIDTH = 1200, HEIGHT = 900;
 
 const int scale = 1;
@@ -12,7 +13,8 @@ const int scale = 1;
 int ball_test()
 {
     int wait;
-    int NUM_THREADS = 12;
+    YAML::Node config = YAML::LoadFile("../config.yaml");
+    int NUM_THREADS = config["Variables"]["omp_num_threads"].as<int>();
     omp_set_num_threads(NUM_THREADS);
     SDL_Init(SDL_INIT_EVERYTHING);
     //SDL_Window *window = SDL_CreateWindow( "Bouncing balls", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, SDL_WINDOW_ALLOW_HIGHDPI );
@@ -53,21 +55,18 @@ int ball_test()
             break;
         }
 
-        if (mainScene.getSize() < 100)
+        if (mainScene.getSize() < config["Variables"]["max_ball_count"].as<int>())
         {
             int maxRadius = 25, minRadius = 10;
             int radius = rand()%(maxRadius - minRadius) + minRadius;
             uint8_t r = rand()%255, g = rand()%255, b = rand()%255;
-            double x = radius;
-            double y = radius;
+            float x = radius;
+            float y = radius;
             std::shared_ptr<Ball> ball = std::make_shared<Ball>(Ball(radius, radius, {x, y}, {x - 5, y}));
             int32_t circle_x = int32_t(ball->position.x * scale);
             int32_t circle_y = int32_t(ball->position.y * scale);
             std::shared_ptr<Circle> image = std::make_shared<Circle>(circle_x, circle_y, ball->radius, true, r, g, b,255);
             std::shared_ptr<BallActor> a = std::make_shared<BallActor>(ball, image, scale);
-            //std::cout << (int)a->image->r << " Trying to fix this shit\n";
-            //arena.AddObject(ball);
-            //actors.push_back(a);
             mainScene.AddActor(a);
         }
         /*arena.ApplyForces();
@@ -82,6 +81,8 @@ int ball_test()
             actors[i]->Draw(s.renderer);
         }
         SDL_RenderPresent(s.renderer);*/
+        //std::cout << mainScene.arena->objects[0]->position.x << std::endl;
+        //std::cout << mainScene.arena->objects.size() << std::endl;
         mainScene.UpdateScene();
         //std::cout << "5\n";
         //a.objects[0]->position.x = mouse_x;

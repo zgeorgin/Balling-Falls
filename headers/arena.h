@@ -6,10 +6,10 @@ class Arena
 {
 public:
     double delta = 1;
-    std::vector<std::shared_ptr<Body>> objects;
+    //std::vector<std::shared_ptr<Body>> objects;
     int animationTicks = 0;
     virtual void ApplyForces() = 0;
-    void AddObject(std::shared_ptr<Body> object) {objects.push_back(object);};
+    void AddObject(std::shared_ptr<Body> object) {};
     //Arena(std::vector<std::shared_ptr<Body>> vec) : objects(vec) {}
     //Arena() {}
 };

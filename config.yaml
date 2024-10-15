@@ -1,0 +1,3 @@
+Variables:
+  omp_num_threads: 12
+  max_ball_count: 700

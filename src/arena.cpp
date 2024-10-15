@@ -54,7 +54,6 @@ void BallCollideArena :: UpdatePositions(double dt)
 
 void BallCollideArena :: ApplyForces()
 {
-    std::cout << 'sdgdsfgd\n';
     for (int k = 0; k < animationTicks; k++)
     { 
         ApplyGravity();

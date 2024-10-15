@@ -24,7 +24,7 @@ public:
     std::shared_ptr<Ball> body;
     std::shared_ptr<Circle> image;
     BallActor(std::shared_ptr<Ball> body, std::shared_ptr<Circle> image, int scale = 1) : body(body), image(image), scale(scale){}
-    ~BallActor() {std::cout << "BALLACTOR DELETED!!!!";}
+    ~BallActor() {}
     void UpdateLink() override;
     void Draw(SDL_Renderer* renderer) override;
 };
