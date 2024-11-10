@@ -57,6 +57,10 @@ int ball_test()
         mainScene.UpdateScene();
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         frame_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+        if (frame_time < 1000.0 / config["Variables"]["max_fps"].as<int>())
+        {
+            SDL_Delay(1000.0 / config["Variables"]["max_fps"].as<int>() - frame_time);
+        }
     }
 
     std::cout << "LAST FRAME TIME: " << frame_time << " ms\n";
