@@ -19,9 +19,9 @@ using BallPtr = std::shared_ptr<Ball>;
 class Cell
 {
 public:
-	Cell(double u, double d, double l, double r) : ub(u), db(d), lb(l), rb(r){}
+	Cell(uint32_t u, uint32_t d, uint32_t l, uint32_t r) : ub(u), db(d), lb(l), rb(r){}
 	std::vector<BallPtr> balls; //Каждый кадр получаем указатели на все шарики внутри клетки 
-	double ub, db, lb, rb; //Границы
+	uint32_t ub, db, lb, rb; //Границы
 	bool inBorders(BallPtr ball); //Функция проверяет, внутри ли клетки шарик
 	void fillCell(std::vector<BallPtr> allBalls); //Подаём все шарики в эту функцию, а она заполняет клетку нужными
 	void collideWithCell(std::shared_ptr<Cell> another); //Просчитывает коллизии между шариками из себя и шариками из другой клетки

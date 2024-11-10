@@ -20,7 +20,7 @@ int ball_test()
 
     SDL_Init(SDL_INIT_EVERYTHING);
     Screen s(WIDTH, HEIGHT, "TEST");
-    BallCollideArena arena({}, 0, HEIGHT, 0, WIDTH, 5, 5);
+    BallCollideArena arena({}, 0, HEIGHT, 0, WIDTH, 1, 1);
     std::vector<std::shared_ptr<BallActor>> actors;
     arena.delta = config["Variables"]["delta"].as<double>();
     arena.animationTicks = config["Variables"]["animation_ticks"].as<int>();
@@ -59,6 +59,10 @@ int ball_test()
         mainScene.UpdateScene();
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         frame_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+        if (frame_time < config["Variables"]["max_frame_time"].as<int>())
+        {
+            SDL_Delay(config["Variables"]["max_frame_time"].as<int>() - frame_time);
+        }
     }
 
     std::cout << "LAST FRAME TIME: " << frame_time << " ms\n";

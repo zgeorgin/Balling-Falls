@@ -10,6 +10,7 @@ void Scene::AddActor(ActorPtr actor)
 void Scene::UpdateScene()
 {
     arena->ApplyForces();
+    //std::cout << "FORCES APPLIED!\n";
     SDL_SetRenderDrawColor(screen->renderer, 0, 0, 0, 255 );
     SDL_RenderClear(screen->renderer);
     for (int i = 0; i < actors.size(); i++)
