@@ -19,3 +19,4 @@ target_link_libraries(Balls PRIVATE ${SDL2_LIBRARIES})
 target_link_libraries(Balls PUBLIC OpenMP::OpenMP_CXX)
 target_link_libraries(Balls PRIVATE yaml-cpp)
 
+add_compile_options(-g)

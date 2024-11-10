@@ -1,5 +1,60 @@
 #include <arena.h>
 #include <iostream>
+
+bool Cell::inBorders(BallPtr ball)
+{
+    return (ball->position.x <= rb) && (ball->position.x > lb) && (ball->position.y <= db) && (ball->position.y > ub);
+}
+
+void Cell::fillCell(std::vector<BallPtr> allBalls)
+{
+    balls = {};
+    for (BallPtr b : allBalls)
+    {
+        if (inBorders(b))
+            balls.push_back(b);
+    }
+}
+
+void Cell::collideWithCell(CellPtr another)
+{
+    for (int i = 0; i < balls.size(); i++)
+        {
+            for (int j = 0; j < another->balls.size(); j++)
+            {
+                BallPtr ball1 = balls[i];
+                BallPtr ball2 = balls[j];
+                if (ball1->id == ball2->id) continue;
+                Vector2 direction = (ball1->position - ball2->position);
+                double dist = norm(direction);
+                double min_dist =  ball1->radius + ball2->radius;
+                if (dist < min_dist)
+                {
+                    Vector2 direction_norm = direction / dist;
+                    double interval = min_dist - dist;
+                    Vector2 diff = direction_norm * interval / 2.0;
+                    ball1->position = ball1->position + diff; // * objects[i]->mass / (objects[i]->mass + ball2->mass);    
+                    ball2->position = ball2->position - diff; //* objects[j]->mass / (objects[i]->mass + objects[j]->mass);       
+                }
+            }
+        }
+}
+
+BallCollideArena::BallCollideArena(std::vector<BallPtr> vec, uint32_t u, uint32_t d, uint32_t l, uint32_t r, size_t cellCountX, size_t cellCountY): objects(vec), uborder(u), dborder(d), lborder(l), rborder(r) 
+{
+    cells = std::vector<std::vector<CellPtr>>(cellCountY + 2, std::vector<CellPtr>(cellCountX + 2, std::make_shared<Cell>(Cell(-INFINITY, -INFINITY, -INFINITY, -INFINITY))));
+    for (int i = 1; i < cells.size() - 1; i++)
+    {
+        for (int j = 1; j < cells[i].size() - 1; j++)
+        {
+            cells[i][j]->ub = (i == 1) ? u - 1 : (d - u) / cellCountY * (i - 1);
+            cells[i][j]->db = (i == cells.size() - 2) ? d : (d - u) / cellCountY * i - 1;
+            cells[i][j]->lb = (j == 1) ? l - 1 : (r - l) / cellCountX * (j - 1);
+            cells[i][j]->rb = (j == cells[i].size() - 2) ? r : (r - l) / cellCountX * j - 1; 
+        }
+    }
+}
+
 void BallCollideArena :: ApplyGravity()
 {
     #pragma omp parallel for
@@ -22,22 +77,23 @@ void BallCollideArena :: ApplyGravity()
 
 void BallCollideArena :: HandleCollisions()
 {
-    #pragma omp parallel for collapse(2)
-        for (int i = 0; i < objects.size(); i++)
+    for (int i = 1; i < cells.size() - 1; i++)
+    {
+        for (int j = 1; j < cells[i].size() - 1; j++)
+            cells[i][j]->fillCell(objects);
+    }
+
+    //#pragma omp parallel for collapse(2)
+        for (int i = 1; i < cells.size(); i++)
         {
-            for (int j = 0; j < objects.size(); j++)
+            for (int j = 1; j < cells[i].size(); j++)
             {
-                if (i == j) continue;
-                Vector2 direction = (objects[i]->position - objects[j]->position);
-                double dist = norm(direction);
-                double min_dist =  objects[i]->radius + objects[j]->radius;
-                if (dist < min_dist)
+                for (int k = -1; k <= 1; k++)
                 {
-                    Vector2 direction_norm = direction / dist;
-                    double interval = min_dist - dist;
-                    Vector2 diff = direction_norm * interval / 2.0;
-                    objects[i]->position = objects[i]->position + diff; // * objects[i]->mass / (objects[i]->mass + objects[j]->mass);    
-                    objects[j]->position = objects[j]->position - diff; //* objects[j]->mass / (objects[i]->mass + objects[j]->mass);       
+                    for (int m = -1; m <= 1; m++)
+                    {
+                        cells[i][j]->collideWithCell(cells[i + k][j + m]);
+                    }
                 }
             }
         }

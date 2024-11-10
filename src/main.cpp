@@ -20,7 +20,7 @@ int ball_test()
 
     SDL_Init(SDL_INIT_EVERYTHING);
     Screen s(WIDTH, HEIGHT, "TEST");
-    BallCollideArena arena({}, 0, HEIGHT, 0, WIDTH);
+    BallCollideArena arena({}, 0, HEIGHT, 0, WIDTH, 5, 5);
     std::vector<std::shared_ptr<BallActor>> actors;
     arena.delta = config["Variables"]["delta"].as<double>();
     arena.animationTicks = config["Variables"]["animation_ticks"].as<int>();
@@ -49,10 +49,12 @@ int ball_test()
         }
         if (mainScene.getSize() < config["Variables"]["max_ball_count"].as<int>())
         {
+            std::cout << "Ball creating begin\n";
             int maxRadius = config["Variables"]["max_radius"].as<int>();
             int minRadius = config["Variables"]["min_radius"].as<int>();
-            std::shared_ptr<BallActor> a = fac.BuildRandom(maxRadius, minRadius);
+            std::shared_ptr<BallActor> a = fac.BuildRandom(maxRadius, minRadius, true, 1, mainScene.getSize());
             mainScene.AddActor(a);
+            std::cout << "Ball creating end\n";
         }
         mainScene.UpdateScene();
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();

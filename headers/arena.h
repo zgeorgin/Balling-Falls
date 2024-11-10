@@ -14,17 +14,33 @@ public:
     //Arena() {}
 };
 
+using BallPtr = std::shared_ptr<Ball>;
+
+class Cell
+{
+public:
+	Cell(double u, double d, double l, double r) : ub(u), db(d), lb(l), rb(r){}
+	std::vector<BallPtr> balls; //Каждый кадр получаем указатели на все шарики внутри клетки 
+	double ub, db, lb, rb; //Границы
+	bool inBorders(BallPtr ball); //Функция проверяет, внутри ли клетки шарик
+	void fillCell(std::vector<BallPtr> allBalls); //Подаём все шарики в эту функцию, а она заполняет клетку нужными
+	void collideWithCell(std::shared_ptr<Cell> another); //Просчитывает коллизии между шариками из себя и шариками из другой клетки
+};
+
+
+using CellPtr = std::shared_ptr<Cell>;
 class BallCollideArena : public Arena
 {
 public:
+    std::vector<std::vector<CellPtr>> cells;
     uint32_t uborder, dborder, rborder, lborder;
-    std::vector<std::shared_ptr<Ball>> objects;
+    std::vector<BallPtr> objects;
     virtual void ApplyForces() override;
     void ApplyGravity();
     void HandleCollisions();
     void UpdatePositions(double dt);
-    void AddObject(std::shared_ptr<Ball> object) {objects.push_back(object);}
-    BallCollideArena(std::vector<std::shared_ptr<Ball>> vec, uint32_t u, uint32_t d, uint32_t l, uint32_t r) : objects(vec), uborder(u), dborder(d), lborder(l), rborder(r) {}
+    void AddObject(BallPtr object) {objects.push_back(object);}
+    BallCollideArena(std::vector<BallPtr> vec, uint32_t u, uint32_t d, uint32_t l, uint32_t r, size_t cellCountX, size_t cellCountY);
 };
 
 #endif

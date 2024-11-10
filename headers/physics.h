@@ -49,7 +49,8 @@ class Ball : public Body
 public:
     int radius;
     float elasticity = 0.9;
-    Ball(float mass = 1, int radius = 1, Vector2 position = {0, 0}, Vector2 prev_position = {0, 0}) : radius(radius), Body(mass, position, prev_position) {}
+    size_t id;
+    Ball(float mass = 1, int radius = 1, Vector2 position = {0, 0}, Vector2 prev_position = {0, 0}, size_t id = 0) : radius(radius), Body(mass, position, prev_position), id(id) {}
 };
 
 #endif
