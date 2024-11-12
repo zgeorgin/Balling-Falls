@@ -3,7 +3,7 @@
 
 bool Cell::inBorders(BallPtr ball)
 {
-    return (ball->position.x <= rb) && (ball->position.x > lb) && (ball->position.y <= db) && (ball->position.y > ub);
+    return (ball->position.x <= rb) && (ball->position.x >= lb) && (ball->position.y <= db) && (ball->position.y >= ub);
 }
 
 void Cell::fillCell(std::vector<BallPtr> allBalls)
@@ -16,28 +16,40 @@ void Cell::fillCell(std::vector<BallPtr> allBalls)
     }
 }
 
-void Cell::collideWithCell(CellPtr another)
+bool solveCollision(BallPtr ball1, BallPtr ball2)
 {
-    for (int i = 0; i < balls.size(); i++)
+    if (ball1->id == ball2->id) return false;
+    Vector2 direction = (ball1->position - ball2->position);
+    double dist = norm(direction);
+    double min_dist =  ball1->radius + ball2->radius;
+    if (dist < min_dist)
+    {
+        Vector2 direction_norm = direction / dist;
+        double interval = min_dist - dist;
+        Vector2 diff = direction_norm * interval / 2.0;
+        ball1->position = ball1->position + diff; // * objects[i]->mass / (objects[i]->mass + ball2->mass);    
+        ball2->position = ball2->position - diff; //* objects[j]->mass / (objects[i]->mass + objects[j]->mass);     
+        return true;  
+    }
+    return false;
+}
+void Cell::collideWithCell(std::shared_ptr<Cell> another)
+{
+    bool is_collide = true;
+    while (is_collide)
+    {
+        is_collide = false;
+        for (int i = 0; i < balls.size(); i++)
         {
             for (int j = 0; j < another->balls.size(); j++)
             {
                 BallPtr ball1 = balls[i];
                 BallPtr ball2 = another->balls[j];
-                if (ball1->id == ball2->id) continue;
-                Vector2 direction = (ball1->position - ball2->position);
-                double dist = norm(direction);
-                double min_dist =  ball1->radius + ball2->radius;
-                if (dist < min_dist)
-                {
-                    Vector2 direction_norm = direction / dist;
-                    double interval = min_dist - dist;
-                    Vector2 diff = direction_norm * interval / 2.0;
-                    ball1->position = ball1->position + diff; // * objects[i]->mass / (objects[i]->mass + ball2->mass);    
-                    ball2->position = ball2->position - diff; //* objects[j]->mass / (objects[i]->mass + objects[j]->mass);       
-                }
+                solveCollision(ball1, ball2);
             }
         }
+    }
+
 }
 
 BallCollideArena::BallCollideArena(std::vector<BallPtr> vec, uint32_t u, uint32_t d, uint32_t l, uint32_t r, size_t cellCountX, size_t cellCountY): objects(vec), uborder(u), dborder(d), lborder(l), rborder(r) 
@@ -85,28 +97,20 @@ void BallCollideArena :: HandleCollisions()
     }
 
     //#pragma omp parallel for collapse(2)
-        for (int i = 1; i < cells.size() - 1; i++)
+    for (int i = 1; i < cells.size() - 1; i++)
+    {
+        for (int j = 1; j < cells[i].size() - 1; j++)
         {
-            for (int j = 1; j < cells[i].size() - 1; j++)
+            cells[i][j]->collideWithCell(cells[i][j]);
+            for (int k = -1; k <= 1; k++)
             {
-                for (int k = -1; k <= 1; k++)
+                for (int m = -1; m <= 1; m++)
                 {
-                    for (int m = -1; m <= 1; m++)
-                    {
-                        cells[i][j]->collideWithCell(cells[i + k][j + m]);
-                        for (int l = 1; l < cells.size() - 1; l++)
-                        {
-                            for (int n = 1; n < cells[i].size() - 1; n++)
-                            {
-                                cells[l][n]->fillCell(cells[i][j]->balls);
-                                cells[l][n]->fillCell(cells[i + k][j + m]->balls);
-                            }
-                        }
-                    }
+                    cells[i][j]->collideWithCell(cells[i + k][j + m]);
                 }
-
             }
         }
+    }
 }
 
 void BallCollideArena :: UpdatePositions(double dt)
@@ -121,9 +125,9 @@ void BallCollideArena :: UpdatePositions(double dt)
 void BallCollideArena :: ApplyForces()
 {
     for (int k = 0; k < animationTicks; k++)
-    { 
-        HandleCollisions();
+    {
         ApplyGravity();
+        HandleCollisions();
         //std::cout << "GRAVITY APPLIED!\n";
         UpdatePositions(delta/animationTicks);
     }

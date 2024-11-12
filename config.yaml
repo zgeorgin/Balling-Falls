@@ -7,4 +7,4 @@ Variables:
   delta : 0.01
   max_radius : 15
   min_radius : 14
-  max_frame_time : 50
+  max_frame_time : 5

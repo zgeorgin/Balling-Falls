@@ -20,7 +20,7 @@ int ball_test()
 
     SDL_Init(SDL_INIT_EVERYTHING);
     Screen s(WIDTH, HEIGHT, "TEST");
-    BallCollideArena arena({}, 0, HEIGHT, 0, WIDTH, 1, 1);
+    BallCollideArena arena({}, 0, HEIGHT, 0, WIDTH, 3, 3);
     std::vector<std::shared_ptr<BallActor>> actors;
     arena.delta = config["Variables"]["delta"].as<double>();
     arena.animationTicks = config["Variables"]["animation_ticks"].as<int>();
@@ -34,6 +34,7 @@ int ball_test()
     int mouse_x = HEIGHT + 10;
     int mouse_y = WIDTH + 10;
     double frame_time = 0;
+    long long frame_counter = 0;
     while ( true )
     {
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
@@ -47,7 +48,7 @@ int ball_test()
         {
             break;
         }
-        if (mainScene.getSize() < config["Variables"]["max_ball_count"].as<int>())
+        if ((mainScene.getSize() < config["Variables"]["max_ball_count"].as<int>()) && (frame_counter % 3 == 0))
         {
             std::cout << "Ball creating begin\n";
             int maxRadius = config["Variables"]["max_radius"].as<int>();
@@ -63,6 +64,7 @@ int ball_test()
         {
             SDL_Delay(config["Variables"]["max_frame_time"].as<int>() - frame_time);
         }
+        frame_counter++;
     }
 
     std::cout << "LAST FRAME TIME: " << frame_time << " ms\n";

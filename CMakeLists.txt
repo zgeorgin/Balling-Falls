@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.27)
 project(Balls)
 
 include_directories(./headers/)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(SDL2 REQUIRED)
