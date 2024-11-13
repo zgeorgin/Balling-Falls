@@ -37,6 +37,8 @@ int ball_test()
     int mouse_x = HEIGHT + 10;
     int mouse_y = WIDTH + 10;
     double frame_time = 0;
+
+    Grid grid(WIDTH/GRID_X, 255, 255, 255, 255);
     while ( true )
     {
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
@@ -60,7 +62,7 @@ int ball_test()
             std::cout << "Ball creating end\n";
         }
         mainScene.UpdateScene();
-        s.renderer->
+        
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         frame_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
         if (frame_time < config["Variables"]["max_frame_time"].as<int>())
