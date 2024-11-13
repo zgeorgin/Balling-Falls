@@ -94,17 +94,20 @@ void BallCollideArena :: HandleCollisions()
                     for (int m = -1; m <= 1; m++)
                     {
                         cells[i][j]->collideWithCell(cells[i + k][j + m]);
-                        for (int l = 1; l < cells.size() - 1; l++)
+                        if ((k == 0) && (m == 0))
                         {
-                            for (int n = 1; n < cells[i].size() - 1; n++)
+                            std::vector<BallPtr> tmpBalls = cells[i][j]->balls;
+                            for (int l = 1; l < cells.size() - 1; l++)
                             {
-                                cells[l][n]->fillCell(cells[i][j]->balls);
-                                cells[l][n]->fillCell(cells[i + k][j + m]->balls);
+                                for (int n = 1; n < cells[i].size() - 1; n++)
+                                {
+                                    cells[l][n]->fillCell(tmpBalls);
+                                }
                             }
                         }
+                        
                     }
                 }
-
             }
         }
 }
@@ -124,7 +127,6 @@ void BallCollideArena :: ApplyForces()
     { 
         HandleCollisions();
         ApplyGravity();
-        //std::cout << "GRAVITY APPLIED!\n";
         UpdatePositions(delta/animationTicks);
     }
 }

@@ -16,11 +16,14 @@ int ball_test()
     int WIDTH = config["Variables"]["WIDTH"].as<int>();
     int HEIGHT = config["Variables"]["HEIGHT"].as<int>();
     int NUM_THREADS = config["Variables"]["omp_num_threads"].as<int>();
+
+    int GRID_X = 5;
+    int GRID_Y = 5;
     omp_set_num_threads(NUM_THREADS);
 
     SDL_Init(SDL_INIT_EVERYTHING);
     Screen s(WIDTH, HEIGHT, "TEST");
-    BallCollideArena arena({}, 0, HEIGHT, 0, WIDTH, 1, 1);
+    BallCollideArena arena({}, 0, HEIGHT, 0, WIDTH, GRID_X, GRID_Y);
     std::vector<std::shared_ptr<BallActor>> actors;
     arena.delta = config["Variables"]["delta"].as<double>();
     arena.animationTicks = config["Variables"]["animation_ticks"].as<int>();
@@ -57,6 +60,7 @@ int ball_test()
             std::cout << "Ball creating end\n";
         }
         mainScene.UpdateScene();
+        s.renderer->
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         frame_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
         if (frame_time < config["Variables"]["max_frame_time"].as<int>())
