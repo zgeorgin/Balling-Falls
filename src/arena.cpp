@@ -3,7 +3,7 @@
 
 bool Cell::inBorders(BallPtr ball)
 {
-    return (ball->position.x <= rb) && (ball->position.x > lb) && (ball->position.y <= db) && (ball->position.y > ub);
+    return (ball->position.x <= rb) && (ball->position.x >= lb) && (ball->position.y <= db) && (ball->position.y >= ub);
 }
 
 void Cell::fillCell(std::vector<BallPtr> allBalls)
@@ -18,6 +18,7 @@ void Cell::fillCell(std::vector<BallPtr> allBalls)
 
 void Cell::collideWithCell(CellPtr another)
 {
+
     for (int i = 0; i < balls.size(); i++)
         {
             for (int j = 0; j < another->balls.size(); j++)
@@ -42,23 +43,27 @@ void Cell::collideWithCell(CellPtr another)
 
 BallCollideArena::BallCollideArena(std::vector<BallPtr> vec, uint32_t u, uint32_t d, uint32_t l, uint32_t r, size_t cellCountX, size_t cellCountY): objects(vec), uborder(u), dborder(d), lborder(l), rborder(r) 
 {
-    cells = std::vector<std::vector<CellPtr>>(cellCountY + 2, std::vector<CellPtr>(cellCountX + 2, std::make_shared<Cell>(Cell(0, 0, 0, 0))));
-    for (int i = 1; i < cells.size() - 1; i++)
+    cells = std::vector<std::vector<CellPtr>>(cellCountY + 2, std::vector<CellPtr>(cellCountX + 2));
+    for (int i = 0; i < cells.size(); i++)
     {
-        for (int j = 1; j < cells[i].size() - 1; j++)
+        for (int j = 0; j < cells[i].size(); j++)
         {
-            cells[i][j]->ub = (i == 1) ? u : (d - u) / cellCountY * (i - 1);
-            cells[i][j]->db = (i == cells.size() - 2) ? d : (d - u) / cellCountY * i;
-            cells[i][j]->lb = (j == 1) ? l : (r - l) / cellCountX * (j - 1);
-            cells[i][j]->rb = (j == cells[i].size() - 2) ? r : (r - l) / cellCountX * j; 
-            std::cout << cells[i][j]->ub << ' ' << cells[i][j]->db << ' ' << cells[i][j]->lb << ' ' << cells[i][j]->rb << '\n';
+            cells[i][j] = std::make_shared<Cell>(Cell(0, 0, 0, 0));
+            if ((i > 0) && (i < cells.size() - 1) && (j > 0) && (j < cells[i].size() - 1))
+            {
+                cells[i][j]->ub = (i == 1) ? u : (d - u) / cellCountY * (i - 1);
+                cells[i][j]->db = (i == cells.size() - 2) ? d : (d - u) / cellCountY * i;
+                cells[i][j]->lb = (j == 1) ? l : (r - l) / cellCountX * (j - 1);
+                cells[i][j]->rb = (j == cells[i].size() - 2) ? r : (r - l) / cellCountX * j; 
+                std::cout << cells[i][j]->ub << ' ' << cells[i][j]->db << ' ' << cells[i][j]->lb << ' ' << cells[i][j]->rb << '\n';
+            }
         }
     }
 }
 
 void BallCollideArena :: ApplyGravity()
 {
-    #pragma omp parallel for
+    //#pragma omp parallel for
         for (int i = 0; i < objects.size(); i++)
         {
             double dx = 0, dy = 0;
@@ -87,24 +92,13 @@ void BallCollideArena :: HandleCollisions()
     //#pragma omp parallel for collapse(2)
         for (int i = 1; i < cells.size() - 1; i++)
         {
-            for (int j = 1; j < cells[i].size() - 1; j++)
+            for (int j = 1; j < cells[0].size() - 1; j++)
             {
                 for (int k = -1; k <= 1; k++)
                 {
                     for (int m = -1; m <= 1; m++)
                     {
                         cells[i][j]->collideWithCell(cells[i + k][j + m]);
-                        if ((k == 0) && (m == 0))
-                        {
-                            std::vector<BallPtr> tmpBalls = cells[i][j]->balls;
-                            for (int l = 1; l < cells.size() - 1; l++)
-                            {
-                                for (int n = 1; n < cells[i].size() - 1; n++)
-                                {
-                                    cells[l][n]->fillCell(tmpBalls);
-                                }
-                            }
-                        }
                         
                     }
                 }
@@ -114,7 +108,7 @@ void BallCollideArena :: HandleCollisions()
 
 void BallCollideArena :: UpdatePositions(double dt)
 {
-    #pragma omp parallel for
+    //#pragma omp parallel for
     for (int i = 0; i < objects.size(); i++)
     {
        objects[i]->UpdatePosition({0, 10000}, dt);

@@ -17,8 +17,8 @@ int ball_test()
     int HEIGHT = config["Variables"]["HEIGHT"].as<int>();
     int NUM_THREADS = config["Variables"]["omp_num_threads"].as<int>();
 
-    int GRID_X = 5;
-    int GRID_Y = 5;
+    int GRID_X = config["Variables"]["GRID_X"].as<int>();
+    int GRID_Y = config["Variables"]["GRID_Y"].as<int>();
     omp_set_num_threads(NUM_THREADS);
 
     SDL_Init(SDL_INIT_EVERYTHING);
@@ -38,7 +38,7 @@ int ball_test()
     int mouse_y = WIDTH + 10;
     double frame_time = 0;
 
-    Grid grid(WIDTH/GRID_X, 255, 255, 255, 255);
+    //Grid grid(WIDTH/GRID_X, HEIGHT, WIDTH, 255, 255, 255, 255);
     while ( true )
     {
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
@@ -62,7 +62,7 @@ int ball_test()
             std::cout << "Ball creating end\n";
         }
         mainScene.UpdateScene();
-        
+        //grid.Draw(s.renderer);
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         frame_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
         if (frame_time < config["Variables"]["max_frame_time"].as<int>())
