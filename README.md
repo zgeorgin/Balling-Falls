@@ -3,7 +3,7 @@ This is my project with simple physical ball simulation based on Verlet integrat
 
 ## That does it do?
 For now it just can only drop balls on 2D-box, but I have big plans on it for future :)
-![Illustration of working](https://github.com/zgeorgin/Balling-Falls/raw/main/src/ItWorks.png)
+![Illustration of working](https://github.com/zgeorgin/Balling-Falls/raw/main/img/ItWorks.png)
 
 ## How to run it?
 Just write this on project directory:
