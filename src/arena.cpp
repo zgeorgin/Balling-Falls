@@ -36,22 +36,15 @@ bool solveCollision(BallPtr ball1, BallPtr ball2)
 void Cell::collideWithCell(std::shared_ptr<Cell> another)
 {
     bool is_collide = true;
-    while (is_collide)
-    {
-        is_collide = false;
-        for (int i = 0; i < balls.size(); i++)
-
     for (int i = 0; i < balls.size(); i++)
+    {
+        for (int j = 0; j < another->balls.size(); j++)
         {
-            for (int j = 0; j < another->balls.size(); j++)
-            {
-                BallPtr ball1 = balls[i];
-                BallPtr ball2 = another->balls[j];
-                solveCollision(ball1, ball2);
-            }
+            BallPtr ball1 = balls[i];
+            BallPtr ball2 = another->balls[j];
+            solveCollision(ball1, ball2);
         }
     }
-
 }
 
 BallCollideArena::BallCollideArena(std::vector<BallPtr> vec, uint32_t u, uint32_t d, uint32_t l, uint32_t r, size_t cellCountX, size_t cellCountY): objects(vec), uborder(u), dborder(d), lborder(l), rborder(r) 
@@ -68,7 +61,6 @@ BallCollideArena::BallCollideArena(std::vector<BallPtr> vec, uint32_t u, uint32_
                 cells[i][j]->db = (i == cells.size() - 2) ? d : (d - u) / cellCountY * i;
                 cells[i][j]->lb = (j == 1) ? l : (r - l) / cellCountX * (j - 1);
                 cells[i][j]->rb = (j == cells[i].size() - 2) ? r : (r - l) / cellCountX * j; 
-                std::cout << cells[i][j]->ub << ' ' << cells[i][j]->db << ' ' << cells[i][j]->lb << ' ' << cells[i][j]->rb << '\n';
             }
         }
     }
@@ -107,7 +99,6 @@ void BallCollideArena :: HandleCollisions()
     {
         for (int j = 1; j < cells[i].size() - 1; j++)
         {
-            cells[i][j]->collideWithCell(cells[i][j]);
             for (int k = -1; k <= 1; k++)
             {
                 for (int m = -1; m <= 1; m++)

@@ -51,7 +51,7 @@ int ball_test()
         {
             break;
         }
-        if ((mainScene.getSize() < config["Variables"]["max_ball_count"].as<int>()) && (frame_counter % 3 == 0))
+        if ((mainScene.getSize() < config["Variables"]["max_ball_count"].as<int>()) && (frame_counter))
         {
             std::cout << "Ball creating begin\n";
             int maxRadius = config["Variables"]["max_radius"].as<int>();
