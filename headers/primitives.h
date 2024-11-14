@@ -59,10 +59,10 @@ private:
 class Grid : public Primitive
 {
 public:
-    int32_t offset;
-    Grid(int32_t offset, Uint8 r = 0, Uint8 g = 0, Uint8 b = 0, Uint8 a = 255) : offset(offset), Primitive(r, g, b, a) {};
+    int32_t offset, height, width;
+    Grid(int32_t offset, int32_t height, int32_t width, Uint8 r = 0, Uint8 g = 0, Uint8 b = 0, Uint8 a = 255) : offset(offset), height(height), width(width), Primitive(r, g, b, a) {};
     ~Grid() {};
-    void Draw(SDL_Renderer* renderer, int height, int width);
+    void Draw(SDL_Renderer* renderer) override;
 };
 
 #endif

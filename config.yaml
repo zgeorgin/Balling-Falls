@@ -1,10 +1,13 @@
 Variables:
-  omp_num_threads: 12
-  max_ball_count: 100
+  omp_num_threads: 1
+  max_ball_count: 1000
   WIDTH : 1600
   HEIGHT : 900
-  animation_ticks : 12
+  animation_ticks : 8
   delta : 0.01
   max_radius : 15
   min_radius : 14
-  max_frame_time : 5
+  max_frame_time : 1
+  GRID_X : 5
+  GRID_Y : 5
+

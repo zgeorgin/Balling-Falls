@@ -129,7 +129,7 @@ void Triangle::Draw(SDL_Renderer* renderer)
     SDL_SetRenderDrawColor(renderer, tr, tg, tb, ta);
 }
 
-void Grid::Draw(SDL_Renderer* renderer, int height, int width)
+void Grid::Draw(SDL_Renderer* renderer)
 {
     Uint8 tr, tg, tb, ta;
     SDL_GetRenderDrawColor(renderer, &tr, &tg, &tb, &ta);
