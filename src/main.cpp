@@ -38,30 +38,59 @@ int ball_test()
     int mouse_y = WIDTH + 10;
     double frame_time = 0;
     long long frame_counter = 0;
+    float radius = 20;
+    uint8_t r = 0, g = 0, b = 0;
+    float x = radius;
+    float y = radius;
+    std::shared_ptr<BallActor> cursor = nullptr;
+    bool cursor_interaction = config["Options"]["cursor_interaction"].as<int>();
+    if (cursor_interaction)
+    {
+        std::shared_ptr<Ball> ball = std::make_shared<Ball>(Ball(radius, radius, {mouse_x, mouse_y}, {mouse_x, mouse_y}, mainScene.getSize()));
+        int32_t circle_x = int32_t(ball->position.x * scale);
+        int32_t circle_y = int32_t(ball->position.y * scale);
+        std::shared_ptr<Circle> image = std::make_shared<Circle>(circle_x, circle_y, ball->radius, true, r, g, b,255);
+        cursor = std::make_shared<BallActor>(BallActor(ball, image, scale));
+        mainScene.AddActor(cursor);
+    }
+
+
     while ( true )
     {
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-        windowEvent = mainScene.CheckInput();
-        if (windowEvent.type == SDL_MOUSEMOTION) {
-            mouse_x = windowEvent.motion.x ;
-            mouse_y = windowEvent.motion.y ;
-        }
+
+        SDL_Event windowEvent;
+        SDL_PollEvent( &windowEvent );
 
         if ( SDL_QUIT == windowEvent.type )
         {
             break;
         }
+
+        if (cursor_interaction)
+        {
+            if (windowEvent.type == SDL_MOUSEMOTION) {
+                mouse_x = windowEvent.motion.x ;
+                mouse_y = windowEvent.motion.y ;
+            }
+        }
+
         if ((mainScene.getSize() < config["Variables"]["max_ball_count"].as<int>()) && (frame_counter))
         {
-            std::cout << "Ball creating begin\n";
             int maxRadius = config["Variables"]["max_radius"].as<int>();
             int minRadius = config["Variables"]["min_radius"].as<int>();
             std::shared_ptr<BallActor> a = fac.BuildRandom(maxRadius, minRadius, true, 1, mainScene.getSize());
             mainScene.AddActor(a);
-            std::cout << "Ball creating end\n";
         }
+
         mainScene.UpdateScene();
-        //grid.Draw(s.renderer);
+
+        if (cursor_interaction)
+        {
+            cursor->body->position = {mouse_x, mouse_y};
+            cursor->body->prev_position = {mouse_x, mouse_y};
+        }
+
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         frame_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
         if (frame_time < config["Variables"]["max_frame_time"].as<int>())

@@ -36,6 +36,7 @@ bool solveCollision(BallPtr ball1, BallPtr ball2)
 void Cell::collideWithCell(std::shared_ptr<Cell> another)
 {
     bool is_collide = true;
+    #pragma omp parallel for collapse(2)
     for (int i = 0; i < balls.size(); i++)
     {
         for (int j = 0; j < another->balls.size(); j++)
@@ -68,7 +69,7 @@ BallCollideArena::BallCollideArena(std::vector<BallPtr> vec, uint32_t u, uint32_
 
 void BallCollideArena :: ApplyGravity()
 {
-    //#pragma omp parallel for
+    #pragma omp parallel for
         for (int i = 0; i < objects.size(); i++)
         {
             double dx = 0, dy = 0;
@@ -97,7 +98,7 @@ void BallCollideArena :: HandleCollisions()
     //#pragma omp parallel for collapse(2)
     for (int i = 1; i < cells.size() - 1; i++)
     {
-        for (int j = 1; j < cells[i].size() - 1; j++)
+        for (int j = 1; j < cells[0].size() - 1; j++)
         {
             for (int k = -1; k <= 1; k++)
             {
