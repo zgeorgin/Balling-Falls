@@ -37,7 +37,6 @@ int ball_test()
     int mouse_x = HEIGHT + 10;
     int mouse_y = WIDTH + 10;
     double frame_time = 0;
-    long long frame_counter = 0;
     float radius = 20;
     uint8_t r = 0, g = 0, b = 0;
     float x = radius;
@@ -75,7 +74,7 @@ int ball_test()
             }
         }
 
-        if ((mainScene.getSize() < config["Variables"]["max_ball_count"].as<int>()) && (frame_counter))
+        if ((mainScene.getSize() < config["Variables"]["max_ball_count"].as<int>()))
         {
             int maxRadius = config["Variables"]["max_radius"].as<int>();
             int minRadius = config["Variables"]["min_radius"].as<int>();
@@ -93,11 +92,10 @@ int ball_test()
 
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         frame_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
-        if (frame_time < config["Variables"]["max_frame_time"].as<int>())
+        if (1000.0 / frame_time > config["Variables"]["max_fps"].as<int>())
         {
-            SDL_Delay(config["Variables"]["max_frame_time"].as<int>() - frame_time);
+            SDL_Delay(1000.0 / (1000.0 / frame_time - config["Variables"]["max_fps"].as<int>()));
         }
-        frame_counter++;
     }
 
     std::cout << "LAST FRAME TIME: " << frame_time << " ms\n";
