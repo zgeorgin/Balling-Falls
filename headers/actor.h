@@ -1,7 +1,8 @@
 #ifndef ACTOR_H
 #define ACTOR_H
 
-#include <primitives.h>
+#include <drawing-features.h>
+#include <circle.h>
 #include <physics.h>
 
 // Class, that links image with physical body

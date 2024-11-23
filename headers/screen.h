@@ -1,7 +1,8 @@
 #ifndef SCREEN_H
 #define SCREEN_H
 
-#include <primitives.h>
+#include <drawing-features.h>
+#include <iostream>
 #include <memory>
 #include <vector>
 
