@@ -1,27 +1,37 @@
 #include <arena.h>
 #include <iostream>
 
-bool Cell::inBorders(BallPtr ball)
+inline bool Cell::inBorders(Ball* ball)
 {
-    return (ball->position.x <= rb) && (ball->position.x >= lb) && (ball->position.y <= db) && (ball->position.y >= ub);
+    const float x = ball->position.x;
+    const float y = ball->position.y;
+
+    if ((y > db) || (y < ub))
+        return false;
+
+    if ((x > rb) || (x < lb))
+        return false;
+    
+    return true; 
+    //return (x <= rb) && (x >= lb) && (y <= db) && (y >= ub);
 }
 
-void Cell::fillCell(std::vector<BallPtr> allBalls)
+void Cell::fillCell(std::vector<Ball*> allBalls)
 {
     balls = {};
-    for (BallPtr b : allBalls)
+    for (Ball* b : allBalls)
     {
         if (inBorders(b))
             balls.push_back(b);
     }
 }
 
-bool solveCollision(BallPtr ball1, BallPtr ball2)
+bool solveCollision(Ball* ball1, Ball* ball2)
 {
     if (ball1->id == ball2->id) return false;
     Vector2 direction = (ball1->position - ball2->position);
     double dist = norm(direction);
-    double min_dist =  ball1->radius + ball2->radius;
+    double min_dist = ball1->radius + ball2->radius;
     if (dist < min_dist)
     {
         Vector2 direction_norm = direction / dist;
@@ -33,35 +43,36 @@ bool solveCollision(BallPtr ball1, BallPtr ball2)
     }
     return false;
 }
-void Cell::collideWithCell(std::shared_ptr<Cell> another)
+void collideCells(const Cell& cell1, const Cell& cell2)
 {
     bool is_collide = true;
-    #pragma omp parallel for collapse(2)
-    for (int i = 0; i < balls.size(); i++)
+    //#pragma omp parallel for collapse(2)
+    for (int i = 0; i < cell1.balls.size(); i++)
     {
-        for (int j = 0; j < another->balls.size(); j++)
+        for (int j = 0; j < cell2.balls.size(); j++)
         {
-            BallPtr ball1 = balls[i];
-            BallPtr ball2 = another->balls[j];
+            Ball* ball1 = cell1.balls[i];
+            Ball* ball2 = cell2.balls[j];
             solveCollision(ball1, ball2);
         }
     }
 }
 
-BallCollideArena::BallCollideArena(std::vector<BallPtr> vec, uint32_t u, uint32_t d, uint32_t l, uint32_t r, size_t cellCountX, size_t cellCountY): objects(vec), uborder(u), dborder(d), lborder(l), rborder(r) 
+BallCollideArena::BallCollideArena(std::vector<Ball*> vec, uint32_t u, uint32_t d, uint32_t l, uint32_t r, size_t cellCountX, size_t cellCountY): objects(vec), uborder(u), dborder(d), lborder(l), rborder(r) 
 {
-    cells = std::vector<std::vector<CellPtr>>(cellCountY + 2, std::vector<CellPtr>(cellCountX + 2));
+    //cells = std::vecot
+    cells = std::vector<std::vector<Cell>>(cellCountY + 2, std::vector<Cell>(cellCountX + 2));
     for (int i = 0; i < cells.size(); i++)
     {
         for (int j = 0; j < cells[i].size(); j++)
         {
-            cells[i][j] = std::make_shared<Cell>(Cell(0, 0, 0, 0));
+            cells[i][j] = Cell(0, 0, 0, 0);
             if ((i > 0) && (i < cells.size() - 1) && (j > 0) && (j < cells[i].size() - 1))
             {
-                cells[i][j]->ub = (i == 1) ? u : (d - u) / cellCountY * (i - 1);
-                cells[i][j]->db = (i == cells.size() - 2) ? d : (d - u) / cellCountY * i;
-                cells[i][j]->lb = (j == 1) ? l : (r - l) / cellCountX * (j - 1);
-                cells[i][j]->rb = (j == cells[i].size() - 2) ? r : (r - l) / cellCountX * j; 
+                cells[i][j].ub = (i == 1) ? u : (d - u) / cellCountY * (i - 1);
+                cells[i][j].db = (i == cells.size() - 2) ? d : (d - u) / cellCountY * i;
+                cells[i][j].lb = (j == 1) ? l : (r - l) / cellCountX * (j - 1);
+                cells[i][j].rb = (j == cells[i].size() - 2) ? r : (r - l) / cellCountX * j; 
             }
         }
     }
@@ -69,7 +80,7 @@ BallCollideArena::BallCollideArena(std::vector<BallPtr> vec, uint32_t u, uint32_
 
 void BallCollideArena :: ApplyGravity()
 {
-    #pragma omp parallel for
+    //#pragma omp parallel for
         for (int i = 0; i < objects.size(); i++)
         {
             double dx = 0, dy = 0;
@@ -89,12 +100,37 @@ void BallCollideArena :: ApplyGravity()
 
 void BallCollideArena :: HandleCollisions()
 {
-    for (int i = 1; i < cells.size() - 1; i++)
+    /*for (int i = 1; i < cells.size() - 1; i++) ТАК БЫЛО РАНЬШЕ - ТАК БОЛЬШЕ НЕ НАДО!!!
     {
         for (int j = 1; j < cells[i].size() - 1; j++)
             cells[i][j]->fillCell(objects);
-    }
+    }*/
 
+    for (int i = 1; i < cells.size() - 1; i++)
+    {
+        for (int j = 1; j < cells[i].size() - 1; j++)
+        {
+            cells[i][j].clearCell();
+        }
+    }
+    for (Ball* b : objects)
+    {
+        bool isFree = true;
+        for (int i = 1; i < cells.size() - 1; i++)
+        {
+            for (int j = 1; j < cells[i].size() - 1; j++)
+            {
+                if (cells[i][j].inBorders(b))
+                {
+                    cells[i][j].addBall(b);
+                    isFree = false;
+                    break;
+                }
+            }
+            if (!isFree)
+                break;
+        }
+    }
     //#pragma omp parallel for collapse(2)
     for (int i = 1; i < cells.size() - 1; i++)
     {
@@ -104,7 +140,7 @@ void BallCollideArena :: HandleCollisions()
             {
                 for (int m = -1; m <= 1; m++)
                 {
-                    cells[i][j]->collideWithCell(cells[i + k][j + m]);
+                    collideCells(cells[i][j], cells[i + k][j + m]);
                 }
             }
         }

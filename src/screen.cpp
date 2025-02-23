@@ -8,8 +8,7 @@ Screen::Screen(int width, int height, const char windowName[])
         std::cout << "Could not create window: " << SDL_GetError() << std::endl;
         return;
     }
-    renderer = SDL_CreateRenderer( window, -1, 0 );
-    objects = {};
+    renderer = SDL_CreateRenderer( window, -1, SDL_RENDERER_ACCELERATED);
 }
 
 Screen::~Screen()

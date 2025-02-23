@@ -1,0 +1,7 @@
+find_package(OpenCV REQUIRED)
+find_package(SDL2 REQUIRED)
+find_package(SDL2_image REQUIRED)
+add_executable(processingPhoto get_photo.cpp)
+target_include_directories(processingPhoto PRIVATE ${OpenCV_INCLUDE_DIRS} ${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIRS})
+target_link_libraries(processingPhoto PRIVATE ${OpenCV_LIBS})
+target_link_libraries(processingPhoto PRIVATE SDL2::SDL2 SDL2_image::SDL2_image)

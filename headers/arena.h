@@ -19,28 +19,31 @@ using BallPtr = std::shared_ptr<Ball>;
 class Cell
 {
 public:
+    Cell() : ub(0), lb(0), db(0), rb(0) {} 
+    Cell(const Cell& another) : ub(another.ub), db(another.db), lb(another.lb), rb(another.rb) {}
 	Cell(uint32_t u, uint32_t d, uint32_t l, uint32_t r) : ub(u), db(d), lb(l), rb(r){}
-	std::vector<BallPtr> balls; //Каждый кадр получаем указатели на все шарики внутри клетки 
+	std::vector<Ball*> balls; //Каждый кадр получаем указатели на все шарики внутри клетки 
 	uint32_t ub, db, lb, rb; //Границы
-	bool inBorders(BallPtr ball); //Функция проверяет, внутри ли клетки шарик
-	void fillCell(std::vector<BallPtr> allBalls); //Подаём все шарики в эту функцию, а она заполняет клетку нужными
-	void collideWithCell(std::shared_ptr<Cell> another); //Просчитывает коллизии между шариками из себя и шариками из другой клетки
+	inline bool inBorders(Ball* ball); //Функция проверяет, внутри ли клетки шарик
+	void fillCell(std::vector<Ball*> allBalls); //Подаём все шарики в эту функцию, а она заполняет клетку нужными (НЕ НАДО ТАК ДЕЛАТЬ!)
+    void clearCell() {balls.clear();}
+    void addBall(Ball* ball) {balls.push_back(ball);}
 };
 
+void collideCells(const Cell& cell1, const Cell& cell2);//Просчитывает коллизии между шариками из двух клеток
 
-using CellPtr = std::shared_ptr<Cell>;
 class BallCollideArena : public Arena
 {
 public:
-    std::vector<std::vector<CellPtr>> cells;
+    std::vector<std::vector<Cell>> cells;
     uint32_t uborder, dborder, rborder, lborder;
-    std::vector<BallPtr> objects;
+    std::vector<Ball*> objects;
     virtual void ApplyForces() override;
     void ApplyGravity();
     void HandleCollisions();
     void UpdatePositions(double dt);
-    void AddObject(BallPtr object) {objects.push_back(object);}
-    BallCollideArena(std::vector<BallPtr> vec, uint32_t u, uint32_t d, uint32_t l, uint32_t r, size_t cellCountX, size_t cellCountY);
+    void AddObject(Ball* object) {objects.push_back(object);}
+    BallCollideArena(std::vector<Ball*> vec, uint32_t u, uint32_t d, uint32_t l, uint32_t r, size_t cellCountX, size_t cellCountY);
 };
 
 #endif

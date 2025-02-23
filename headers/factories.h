@@ -12,7 +12,7 @@ public:
 class BallActorFactory
 {
 public:
-    std::shared_ptr<BallActor> BuildRandom(int maxRadius, int minRadius, bool isColored = true, int scale = 1, size_t id = 0);
+    std::shared_ptr<BallActor> BuildRandom(int maxRadius, int minRadius, bool isColored = true, int scale = 1, size_t id = 0, Position velocity = {0, 0},SDL_Renderer* renderer = nullptr);
 };
 
 #endif

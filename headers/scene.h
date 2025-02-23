@@ -4,6 +4,7 @@
 #include <actor.h>
 #include <screen.h>
 #include <arena.h>
+#include <fstream>
 
 using ArenaPtr = std::shared_ptr<Arena>;
 using ScreenPtr = std::shared_ptr<Screen>;
@@ -22,6 +23,8 @@ public:
     size_t getSize() { return actors.size(); }
     SDL_Event CheckInput() { return screen->CheckInput(); }
     void UpdateScene();
+    void save(const char* filepath);
+    void removeTextures() {for (ActorPtr actor : actors) actor->image->removeTexture();}
 };
 
 #endif

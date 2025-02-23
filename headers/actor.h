@@ -1,12 +1,13 @@
 #ifndef ACTOR_H
 #define ACTOR_H
 
-#include <drawing-features.h>
 #include <circle.h>
 #include <physics.h>
+#include <string.h>
+#include <sstream>
 
 // Class, that links image with physical body
-class Actor
+/*class Actor
 {
 public:
     int scale;
@@ -16,18 +17,20 @@ public:
     //Actor() {}
     virtual void UpdateLink() = 0;
     virtual void Draw(SDL_Renderer* renderer) = 0;
-};
+};/**/
 
-class BallActor : public Actor
+class BallActor
 {
 public:
     int scale;
-    std::shared_ptr<Ball> body;
+    Ball* body;
     std::shared_ptr<Circle> image;
-    BallActor(std::shared_ptr<Ball> body, std::shared_ptr<Circle> image, int scale = 1) : body(body), image(image), scale(scale){}
+    BallActor(Ball* body, std::shared_ptr<Circle> image, int scale = 1) : body(body), image(image), scale(scale){}
+    BallActor(std::string saveString, int scale = 1);
     ~BallActor() {}
-    void UpdateLink() override;
-    void Draw(SDL_Renderer* renderer) override;
+    void UpdateLink();
+    void Draw(SDL_Renderer* renderer);
+    std::string getSaveString();
 };
 
 #endif

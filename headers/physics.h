@@ -36,12 +36,17 @@ Vector2 operator- (const Vector2& b, float a) ;
 
 class Body
 {
+private:
+    Vector2 beginPosition;
+    Vector2 beginPrevPosition;
 public:
     float mass;
     Vector2 prev_position;
     Vector2 position;
-    Body(float mass, Vector2 position, Vector2 prev_position) : position(position), prev_position(prev_position), mass(mass) {}
+    Body(float mass, Vector2 position, Vector2 prev_position) : position(position), prev_position(prev_position), mass(mass), beginPosition(position), beginPrevPosition(prev_position) {}
     void UpdatePosition(Vector2 acceleration, float delta);
+    Vector2 getBeginPosition() {return beginPosition;}
+    Vector2 getBeginPrevPosition() {return beginPrevPosition;}
 };
 
 class Ball : public Body
