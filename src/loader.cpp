@@ -7,7 +7,7 @@ BallActorLoader::BallActorLoader(const char* filepath)
     }
 }
 
-std::shared_ptr<BallActor> BallActorLoader::load(SDL_Renderer* renderer, cv::Mat img, SDL_Surface* surf)
+std::shared_ptr<BallActor> BallActorLoader::load(SDL_Renderer* renderer, cv::Mat img, SDL_Texture* texture)
 {
     int id, radius;
     Position beginPos = {0, 0}, beginPrevPos = {0, 0}, endPos = {0, 0};
@@ -22,7 +22,7 @@ std::shared_ptr<BallActor> BallActorLoader::load(SDL_Renderer* renderer, cv::Mat
     uchar red = pixel[2];
 
     Ball* ball = new Ball(float(radius), radius, {beginPos.x, beginPos.y}, {beginPrevPos.x, beginPrevPos.y}, id);
-    std::shared_ptr<Circle> image = std::make_shared<Circle>(Circle(radius, {beginPos.x, beginPos.y}, {red, green, blue}, renderer, surf));
+    std::shared_ptr<Circle> image = std::make_shared<Circle>(Circle(radius, {beginPos.x, beginPos.y}, {red, green, blue}, renderer, texture));
 
     return std::make_shared<BallActor>(BallActor(ball, image, 1));
 }

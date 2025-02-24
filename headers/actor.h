@@ -29,7 +29,7 @@ public:
     BallActor(std::string saveString, int scale = 1);
     ~BallActor() {}
     void UpdateLink();
-    void Draw(SDL_Renderer* renderer);
+    void Draw(SDL_Renderer* renderer, SDL_Texture* texture);
     std::string getSaveString();
 };
 

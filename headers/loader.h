@@ -9,5 +9,5 @@ private:
 public:
     BallActorLoader(const char* filename);
     bool readyToLoad() {return !in.eof();}
-    std::shared_ptr<BallActor> load(SDL_Renderer* renderer, cv::Mat image,  SDL_Surface* surf);
+    std::shared_ptr<BallActor> load(SDL_Renderer* renderer, cv::Mat image, SDL_Texture* texture);
 };

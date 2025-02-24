@@ -7,7 +7,7 @@ void Scene::AddActor(ActorPtr actor)
     arena->AddObject(actor->body);
 }
 
-void Scene::UpdateScene()
+void Scene::UpdateScene(SDL_Texture* texture)
 {
     arena->ApplyForces();
     //std::cout << "FORCES APPLIED!\n";
@@ -16,7 +16,7 @@ void Scene::UpdateScene()
     for (int i = 0; i < actors.size(); i++)
     {
         actors[i]->UpdateLink();
-        actors[i]->Draw(screen->renderer);
+        actors[i]->Draw(screen->renderer, texture);
     }
     SDL_RenderPresent(screen->renderer);
     //screen->Draw();
@@ -32,6 +32,8 @@ void Scene::save(const char* filepath)
         return;
     }
 
-    for (ActorPtr actor : actors)
-        out << actor->getSaveString() << std::endl;
+    for (int i = 0; i < actors.size() - 1; i++)
+        out << actors[i]->getSaveString() << std::endl;
+    
+    out << actors[actors.size() - 1]->getSaveString();
 }

@@ -22,7 +22,7 @@ public:
     void AddActor(ActorPtr actor);
     size_t getSize() { return actors.size(); }
     SDL_Event CheckInput() { return screen->CheckInput(); }
-    void UpdateScene();
+    void UpdateScene(SDL_Texture* texture);
     void save(const char* filepath);
     void removeTextures() {for (ActorPtr actor : actors) actor->image->removeTexture();}
 };

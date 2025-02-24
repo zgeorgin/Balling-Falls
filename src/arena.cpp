@@ -1,6 +1,6 @@
 #include <arena.h>
 #include <iostream>
-
+#include <thread>
 inline bool Cell::inBorders(Ball* ball)
 {
     const float x = ball->position.x;
@@ -60,11 +60,15 @@ void collideCells(const Cell& cell1, const Cell& cell2)
 
 BallCollideArena::BallCollideArena(std::vector<Ball*> vec, uint32_t u, uint32_t d, uint32_t l, uint32_t r, size_t cellCountX, size_t cellCountY): objects(vec), uborder(u), dborder(d), lborder(l), rborder(r) 
 {
+    cellCols = cellCountX + 2;
+    cellRows = cellCountY + 2;
+    cellHight = (d - u) / cellCountY;
+    cellWidth = (r - l) / cellCountX;
     //cells = std::vecot
     cells = std::vector<std::vector<Cell>>(cellCountY + 2, std::vector<Cell>(cellCountX + 2));
     for (int i = 0; i < cells.size(); i++)
     {
-        for (int j = 0; j < cells[i].size(); j++)
+        for (int j = 0; j < cells[0].size(); j++)
         {
             cells[i][j] = Cell(0, 0, 0, 0);
             if ((i > 0) && (i < cells.size() - 1) && (j > 0) && (j < cells[i].size() - 1))
@@ -97,6 +101,73 @@ void BallCollideArena :: ApplyGravity()
                 objects[i]->position.x = rborder - objects[i]->radius;
         }
 }
+void processColsStatic(const std::vector<std::vector<Cell>>& cells, size_t startCol, size_t endCol)
+{
+    for (int i = 1; i <= cells.size() - 1; i++)
+    {
+        for (int j = startCol; j <= endCol; j++)
+        {
+            if (j >= cells[i].size())
+                break;
+            if (cells[i][j].balls.empty())
+                continue;
+            for (int k = -1; k <= 1; k++)
+            {
+                for (int m = -1; m <= 1; m++)
+                {
+                    if (cells[i + k][j + m].balls.empty())
+                        continue;
+                    collideCells(cells[i][j], cells[i + k][j + m]);
+                }
+            }
+        }
+    }
+}
+void processRowsStatic(const std::vector<std::vector<Cell>>& cells, size_t startRow, size_t endRow)
+{
+    for (int i = startRow; i <= endRow; i++)
+    {
+        if (i >= cells.size())
+            break;
+        for (int j = 1; j < cells[0].size() - 1; j++)
+        {
+            if (cells[i][j].balls.empty())
+                continue;
+            for (int k = -1; k <= 1; k++)
+            {
+                for (int m = -1; m <= 1; m++)
+                {
+                    if (cells[i + k][j + m].balls.empty())
+                        continue;
+                    collideCells(cells[i][j], cells[i + k][j + m]);
+                }
+            }
+        }
+    }
+}
+
+void BallCollideArena :: proccessRows(size_t startRow, size_t endRow)
+{
+    for (int i = startRow; i < endRow; i++)
+    {
+        if (i >= cellRows)
+            break;
+        for (int j = 1; j < cellCols - 1; j++)
+        {
+            if (cells[i][j].balls.empty())
+                continue;
+            for (int k = -1; k <= 1; k++)
+            {
+                for (int m = -1; m <= 1; m++)
+                {
+                    if (cells[i + k][j + m].balls.empty())
+                        continue;
+                    collideCells(cells[i][j], cells[i + k][j + m]);
+                }
+            }
+        }
+    }
+}
 
 void BallCollideArena :: HandleCollisions()
 {
@@ -106,45 +177,59 @@ void BallCollideArena :: HandleCollisions()
             cells[i][j]->fillCell(objects);
     }*/
 
-    for (int i = 1; i < cells.size() - 1; i++)
+    for (int i = 1; i < cellRows - 1; i++)
     {
-        for (int j = 1; j < cells[i].size() - 1; j++)
+        for (int j = 1; j < cellCols - 1; j++)
         {
             cells[i][j].clearCell();
         }
     }
+
     for (Ball* b : objects)
     {
-        bool isFree = true;
-        for (int i = 1; i < cells.size() - 1; i++)
-        {
-            for (int j = 1; j < cells[i].size() - 1; j++)
-            {
-                if (cells[i][j].inBorders(b))
-                {
-                    cells[i][j].addBall(b);
-                    isFree = false;
-                    break;
-                }
-            }
-            if (!isFree)
-                break;
-        }
+       cells[b->position.y / cellHight + 1][b->position.x / cellWidth + 1].addBall(b);
     }
-    //#pragma omp parallel for collapse(2)
-    for (int i = 1; i < cells.size() - 1; i++)
+    size_t threadCount = 16;
+    std::vector<std::thread> threads;
+    /*for (int i = 1; i < cellRows - 1; i++)
     {
-        for (int j = 1; j < cells[0].size() - 1; j++)
+        for (int j = 1; j < cellCols - 1; j++)
         {
+            if (cells[i][j].balls.empty())
+                continue;
             for (int k = -1; k <= 1; k++)
             {
                 for (int m = -1; m <= 1; m++)
                 {
+                    if (cells[i + k][j + m].balls.empty())
+                        continue;
                     collideCells(cells[i][j], cells[i + k][j + m]);
                 }
             }
         }
+    }*/
+
+    //int rowsPerThread = (cellRows - 2) / threadCount;
+    //int remainder = (cellRows - 2) % threadCount;
+
+    int colsPerThread = (cellCols - 2) / threadCount;
+    int remainder = (cellCols - 2) % threadCount;
+    //int startRow = 1;
+    int startCol = 1;
+    for (int i = 0; i < threadCount; i++)
+    {
+        int endCol = startCol + colsPerThread + (i < remainder ? 1 : 0); // Добавляем оставшиеся строки, если нужно
+        threads.emplace_back(processColsStatic, std::ref(cells), startCol, endCol);
+        startCol = endCol; // Сдвигаем на следующий сегмент
+        //std::cout << "Поток " << i << " " << (cellRows) / threadCount * i + 1 << " " << (cellRows) / threadCount * (i + 1) << '\n';
     }
+
+    for (int i = 0; i <threadCount; i++)
+    {
+        threads[i].join();
+        //std::cout << "Завершился поток " << i << std::endl;
+    }
+    
 }
 
 void BallCollideArena :: UpdatePositions(double dt)

@@ -27,8 +27,8 @@ private:
 public:
     const char* filepath = "../img/circle.png";
     Circle() {}
-    Circle(size_t radius, Position center, RGB color, SDL_Renderer* renderer, SDL_Surface* surface = nullptr);
-    void draw (SDL_Renderer* new_renderer);
+    Circle(size_t radius, Position center, RGB color, SDL_Renderer* renderer, SDL_Texture* texture = nullptr);
+    void draw (SDL_Renderer* new_renderer, SDL_Texture* texture);
     void changePosition(Position new_center) {center = new_center;}
     Position getPosition() {return center;}
     size_t getRadius() {return radius;}

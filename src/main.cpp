@@ -140,6 +140,7 @@ int ball_test()
     }
     SDL_Surface* circle_surf = IMG_Load(CIRCLE_FILEPATH);
     Screen s(WIDTH, HEIGHT, "TEST");
+    SDL_Texture* circle_texture = SDL_CreateTextureFromSurface(s.renderer, circle_surf);
     BallCollideArena arena({}, 0, HEIGHT, 0, WIDTH, GRID_X, GRID_Y);
     std::vector<std::shared_ptr<BallActor>> actors;
     arena.delta = config["Variables"]["delta"].as<double>();
@@ -191,6 +192,7 @@ int ball_test()
             if (SDLK_q == windowEvent.key.keysym.sym)
             {
                 mainScene.save(SAVE_FILEPATH);
+                std::cout << "Scene saved!\n";
             }
         }
 
@@ -210,13 +212,13 @@ int ball_test()
                 {
                     int maxRadius = config["Variables"]["max_radius"].as<int>();
                     int minRadius = config["Variables"]["min_radius"].as<int>();
-                    Position velocity = (stream == 0) ? Position({-2, 0}) : Position({2, 0});
+                    Position velocity = (stream == 0) ? Position({-3, 0}) : Position({2, 0});
                     int radius = rand()%(maxRadius - minRadius) + minRadius;
                     uint8_t r = rand()%255, g = rand()%255, b = rand()%255;
                     Position beginPos = (stream == 0) ? Position({radius, radius}) : Position({WIDTH - radius, radius});
                     Ball* ball = new Ball(float(radius), radius, {beginPos.x, beginPos.y}, {beginPos.x + velocity.x, beginPos.y + velocity.y}, mainScene.getSize());
                     all_balls.push_back(ball);
-                    std::shared_ptr<Circle> image = std::make_shared<Circle>(Circle(radius, {ball->position.x * scale, ball->position.y * scale}, {r, g, b}, mainScene.screen->renderer, circle_surf));
+                    std::shared_ptr<Circle> image = std::make_shared<Circle>(Circle(radius, {ball->position.x * scale, ball->position.y * scale}, {r, g, b}, mainScene.screen->renderer, circle_texture));
                     std::shared_ptr<BallActor> a = std::make_shared<BallActor>(BallActor(ball, image, 1));
                     mainScene.AddActor(a);
                 }
@@ -225,13 +227,14 @@ int ball_test()
             order = (order + 1) % 6;
             if ((mainScene.getSize() >= config["Variables"]["max_ball_count"].as<int>()))
             {
+                order = 0;
                 //std::cout << "WE ARE GONE!\n";
-                break;
-                if (order == 5)
-                    mainScene.save(SAVE_FILEPATH);
+                //break;
+                //if (order == 5)
+                //    mainScene.save(SAVE_FILEPATH);
             }
             //saveFrame("../frames/frame_" + std::to_string(frameNumber), mainScene.screen->renderer, WIDTH, HEIGHT);
-            frameNumber++;
+            //frameNumber++;
         }
 
         else
@@ -240,18 +243,21 @@ int ball_test()
             {
                 for (int i = 0; i < 2; i++)
                 {
-                    std::shared_ptr<BallActor> a = ld.load(mainScene.screen->renderer, image, circle_surf);
-                    all_balls.push_back(a->body);
-                    mainScene.AddActor(a);
+                    if (ld.readyToLoad())
+                    {
+                        std::shared_ptr<BallActor> a = ld.load(mainScene.screen->renderer, image, circle_texture);
+                        all_balls.push_back(a->body);
+                        mainScene.AddActor(a);
+                    }
                 }
 
             }
             order = (order + 1) % 6;
-            saveFrame("../frames/frame_" + std::to_string(frameNumber), mainScene.screen->renderer, WIDTH, HEIGHT);
-            frameNumber++;
+            //saveFrame("../frames/frame_" + std::to_string(frameNumber), mainScene.screen->renderer, WIDTH, HEIGHT);
+            //frameNumber++;
         }
 
-        mainScene.UpdateScene();
+        mainScene.UpdateScene(circle_texture);
 
         if (cursor_interaction)
         {
@@ -272,14 +278,15 @@ int ball_test()
 
     SDL_Quit();
     IMG_Quit();
-    SDL_FreeSurface(circle_surf);
     for (int i = 0; i < all_balls.size(); i++)
         delete all_balls[i];
-    mainScene.removeTextures();
+    //mainScene.removeTextures();
+    SDL_DestroyTexture(circle_texture);
+    SDL_FreeSurface(circle_surf);
     return EXIT_SUCCESS;
 }
 
-int test_circle()
+/*int test_circle()
 {
     // Инициализация SDL
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -317,7 +324,8 @@ int test_circle()
         return -1;
     }
     std::shared_ptr<Circle> c = std::make_shared<Circle>(Circle(15, {100, 200}, {255, 255, 0}, renderer));
-    /*// Загружаем текстуру
+    
+    // Загружаем текстуру
     SDL_Surface* surface = IMG_Load("../img/circle.png");  // Замените "example.png" на ваш файл
     if (!surface) {
         std::cerr << "Ошибка загрузки изображения: " << IMG_GetError() << std::endl;
@@ -344,7 +352,7 @@ int test_circle()
     Uint8 green = 0;
     Uint8 blue = 0;
     SDL_SetTextureColorMod(texture, red, green, blue);
-    */
+    
     // Основной цикл программы
     bool running = true;
     SDL_Event event;
@@ -359,7 +367,7 @@ int test_circle()
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Чёрный цвет фона
         SDL_RenderClear(renderer);
 
-        c->draw(renderer);
+        c->draw(renderer, circle_texture);
         // Обновляем экран
         SDL_RenderPresent(renderer);
     }
@@ -370,7 +378,7 @@ int test_circle()
     SDL_Quit();
 
     return 0;
-}
+}*/
 int main( int argc, char *argv[] )
 {
     //return playVideo();

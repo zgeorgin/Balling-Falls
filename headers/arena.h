@@ -34,8 +34,12 @@ void collideCells(const Cell& cell1, const Cell& cell2);//Просчитывае
 
 class BallCollideArena : public Arena
 {
+private:
+    void proccessRows(size_t startRow, size_t endRow);
 public:
     std::vector<std::vector<Cell>> cells;
+    float cellWidth, cellHight;
+    size_t cellRows, cellCols;
     uint32_t uborder, dborder, rborder, lborder;
     std::vector<Ball*> objects;
     virtual void ApplyForces() override;

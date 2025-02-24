@@ -9,9 +9,9 @@ void BallActor::UpdateLink()
     //std::cout << x << ' ' << image->centreX << ' ' << scale << ' ' << body->position.x << std::endl;
 }
 
-void BallActor::Draw(SDL_Renderer* renderer)
+void BallActor::Draw(SDL_Renderer* renderer, SDL_Texture* texture)
 {
-    image->draw(renderer);
+    image->draw(renderer, texture);
 }
 
 std::string BallActor::getSaveString()
